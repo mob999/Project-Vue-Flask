@@ -1,0 +1,1 @@
+{"det_weights": "./weights/yolov5_best.pt", "rec_weights": "./weights/lprnet_best.pth"}
