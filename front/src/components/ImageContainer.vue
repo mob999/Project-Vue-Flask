@@ -1,5 +1,13 @@
 <template>
     <div id="root">
+        <el-dialog title="图像预览" :visible.sync="tpDialogVisible" width="1500px" height="400px" style="z-index:0;">
+              <el-image
+              :src="drawUrl"
+              :key="index"
+              style="width: 70%; height: 70%"
+              fit="scale-down"
+              ></el-image>
+        </el-dialog>
         <div id="word">
           <h1>{{ msg }}</h1>
         </div>
@@ -78,18 +86,23 @@
             <div style="margin:auto">检测结果</div>
           </div>
               <div class="two-image-box">
-                  <el-image class="image-box"
+                  <el-image
+                    class="image-box"
                     :src="originUrl"
+                    fit="scale-down"
                   >
-                    <div slot="error" class="image-slot" style="margin-top:20%">
+                    <div slot="error" class="image-slot" style="margin-top:100px">
                       <el-empty description="暂无数据"></el-empty>
                     </div>
                   </el-image>
 
-                  <el-image class="image-box"
+                  <el-image
+                    class="image-box"
                     :src="drawUrl"
+                    fit="scale-down"
+                    @click="openImage"
                   >
-                    <div slot="error" class="image-slot" style="margin-top:20%">
+                    <div slot="error" class="image-slot" style="margin-top:100px">
                       <el-empty description="暂无数据"></el-empty>
                     </div>
                   </el-image>
@@ -111,8 +124,12 @@
 
 <script>
 import axios from 'axios'
+import Viewer from 'viewerjs'
 export default {
   name: 'ImageContainer',
+  comments: {
+    'viewer': Viewer
+  },
   data () {
     return {
       originUrl: '',
@@ -129,7 +146,8 @@ export default {
       lprWeights: [],
       yoloModel: '',
       lprModel: '',
-      hasGotModels: false
+      hasGotModels: false,
+      tpDialogVisible: false
     }
   },
 
@@ -137,6 +155,13 @@ export default {
     upload () {
       console.log('haha')
       this.$refs.upload.click()
+    },
+    serveUrl (s) {
+      return 'http://region-4.autodl.com:47238/' + s
+    },
+    openImage () {
+      console.log('open image')
+      this.tpDialogVisible = true
     },
     updateImage (e) {
       console.log('updateImage')
@@ -157,10 +182,11 @@ export default {
       this.filename = _img.name
       this.dialogVisible = true
       axios
-        .post('http://region-4.autodl.com:47238/upload', param, config)
+        .post(this.serveUrl('upload'), param, config)
         .then((response) => {
           clearInterval(timer)
           this.originUrl = response.data.origin_url
+          console.log(this.originUrl)
           this.drawUrl = response.data.draw_url
           this.result = response.data.result.split(' ')[0]
           this.imgSize = response.data.img_size.split(' ')[0]
@@ -173,14 +199,17 @@ export default {
             'conf': this.confidence
           })
           if (this.result === '') {
-            this.errMsg = '检测失败，未识别到车牌'
-            this.errorDialog = true
+            this.$notify.error({
+              title: '失败',
+              message: '检测失败，未识别到车牌'
+            })
+          } else {
+            this.$notify({
+              title: '成功',
+              message: '图片上传及检测成功',
+              type: 'success'
+            })
           }
-          this.$notify({
-            title: '成功',
-            message: '图片上传及检测成功',
-            type: 'success'
-          })
         })
       console.log(this.drawUrl)
     },
@@ -191,7 +220,7 @@ export default {
       this.yoloWeights = []
       this.lprWeights = []
       axios
-        .get('http://region-4.autodl.com:47238/get-models')
+        .get(this.serveUrl('get-models'))
         .then((response) => {
           let allWeights = response.data.split(' ')
           for (let i = 0; i < allWeights.length; i++) {
@@ -208,7 +237,7 @@ export default {
     changeModels (type) {
       let param = {'type': type, 'name': type === 'yolo' ? this.yoloModel : this.lprModel}
       axios
-        .get('http://region-4.autodl.com:47238/change-models', {
+        .get(this.serveUrl('change-models'), {
           params: param
         })
         .then((response) => {
@@ -221,7 +250,7 @@ export default {
     },
     getDefaultModel () {
       axios
-        .get('http://region-4.autodl.com:47238/get-cur-model')
+        .get(this.serveUrl('get-cur-model'))
         .then((response) => {
           this.yoloModel = response.data.det_weights.split('/')[2]
           this.lprModel = response.data.rec_weights.split('/')[2]
@@ -257,7 +286,7 @@ export default {
 
   .two-image-box {
     width: 90%;
-    height: 50%;
+    height: 500px;
     display: flex;
     margin-bottom: 10px;
     margin-left: 5%;

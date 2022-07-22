@@ -6,9 +6,11 @@ import router from './router'
 import axios from 'axios'
 import Element from 'element-ui'
 import '../node_modules/element-ui/lib/theme-chalk/index.css'
-
+import 'viewerjs/dist/viewer.css'
+import Viewer from 'v-viewer'
 Vue.config.productionTip = false
 Vue.use(Element)
+Vue.use(Viewer)
 Vue.prototype.$http = axios
 /* eslint-disable no-new */
 new Vue({

@@ -18,6 +18,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds=1)
 
+serve_url = 'http://region-4.autodl.com:47238/'
+
 @app.after_request
 def after_request(response):
     '''
@@ -60,8 +62,8 @@ def upload():
         draw_path, s, res = main.run(img_path=image_path)
         return jsonify({
             'status':1,
-            'origin_url': 'http://region-4.autodl.com:47238/demo/images/'+file.filename,
-            'draw_url':    str(os.path.join('http://region-4.autodl.com:47238', draw_path)),
+            'origin_url':  serve_url+'demo/images/'+file.filename,
+            'draw_url':    str(os.path.join(serve_url, draw_path)),
             'img_size': s,
             'result': res
         })
@@ -106,8 +108,6 @@ def change_models():
     print(config_json)
     json.dump(config, config_json)
     return jsonify(config)
-            
-        
 
 if __name__ == '__main__':
     app.run(host='localhost', port=6006, debug=True)

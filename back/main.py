@@ -21,9 +21,6 @@ def detect(img_path, save_img=False):
     #     print('classify')
     # Initialize
     device = torch_utils.select_device('')
-    if os.path.exists(out):
-        shutil.rmtree(out)  # delete rec_result folder
-    os.makedirs(out)  # make new rec_result folder
     half = device.type != 'cpu'  # half precision only supported on CUDA
 
     # Load yolov5 model
