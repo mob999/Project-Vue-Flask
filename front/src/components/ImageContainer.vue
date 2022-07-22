@@ -1,9 +1,15 @@
 <template>
     <div id="root">
-        <el-dialog title="图像预览" :visible.sync="tpDialogVisible" width="1500px" height="400px" style="z-index:0;">
+        <el-dialog title="图像预览" :visible.sync="tpDialogVisible" width="1000px" height="400px" style="z-index:0;">
               <el-image
               :src="drawUrl"
-              :key="index"
+              style="width: 70%; height: 70%"
+              fit="scale-down"
+              ></el-image>
+        </el-dialog>
+        <el-dialog title="图像预览" :visible.sync="oriDialogVisible" width="1000px" height="400px" style="z-index:0;">
+              <el-image
+              :src="drawUrl"
               style="width: 70%; height: 70%"
               fit="scale-down"
               ></el-image>
@@ -90,6 +96,7 @@
                     class="image-box"
                     :src="originUrl"
                     fit="scale-down"
+                    @click="openImage('origin')"
                   >
                     <div slot="error" class="image-slot" style="margin-top:100px">
                       <el-empty description="暂无数据"></el-empty>
@@ -100,7 +107,7 @@
                     class="image-box"
                     :src="drawUrl"
                     fit="scale-down"
-                    @click="openImage"
+                    @click="openImage('draw')"
                   >
                     <div slot="error" class="image-slot" style="margin-top:100px">
                       <el-empty description="暂无数据"></el-empty>
@@ -108,7 +115,7 @@
                   </el-image>
               </div>
 
-            <el-table :data="tableData" style="width:90%;margin-left:5%;margin-right:5%;margin-top:20px;">
+            <el-table :data="tableData" style="width:90%;margin-left:5%;margin-right:5%;margin-top:20px;" @cell-click="cell_click">
               <el-table-column prop="name" label="图片名称" >
               </el-table-column>
               <el-table-column prop="size" label="图片大小">
@@ -147,7 +154,8 @@ export default {
       yoloModel: '',
       lprModel: '',
       hasGotModels: false,
-      tpDialogVisible: false
+      tpDialogVisible: false,
+      oriDialogVisible: false
     }
   },
 
@@ -159,9 +167,17 @@ export default {
     serveUrl (s) {
       return 'http://region-4.autodl.com:47238/' + s
     },
-    openImage () {
-      console.log('open image')
-      this.tpDialogVisible = true
+    openImage (type) {
+      console.log(type)
+      if (type === 'draw') {
+        this.tpDialogVisible = true
+      } else if (type === 'origin') {
+        this.oriDialogVisible = true
+      }
+    },
+    cell_click (row) {
+      this.originUrl = this.originUrl.substring(0, this.originUrl.lastIndexOf('/') + 1) + row.name
+      this.drawUrl = this.drawUrl.substring(0, this.drawUrl.lastIndexOf('/') + 1) + row.name
     },
     updateImage (e) {
       console.log('updateImage')
@@ -206,7 +222,11 @@ export default {
           } else {
             this.$notify({
               title: '成功',
-              message: '图片上传及检测成功',
+              message: '图片上传及检测成功!',
+              type: 'success'
+            })
+            this.$message({
+              message: '点击图片可查看预览,点击检测记录表格可查看历史检测图',
               type: 'success'
             })
           }
