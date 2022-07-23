@@ -46,6 +46,12 @@ def default():
     '''
     return redirect(url_for('static', filename='./index.html'))
 
+@app.route('/test', methods=['GET'])
+def test():
+    return jsonify({
+        "status" : "success"
+    })
+
 @app.route('/upload', methods = ['GET', 'POST'])
 def upload():
     '''
