@@ -16,6 +16,7 @@
         </el-dialog>
         <div id="word">
           <h1>{{ msg }}</h1>
+          服务端状态：{{serveStatus}}
         </div>
         <div class="content">
           <div class="controller">
@@ -155,8 +156,18 @@ export default {
       lprModel: '',
       hasGotModels: false,
       tpDialogVisible: false,
-      oriDialogVisible: false
+      oriDialogVisible: false,
+      serveStatus: '未连接'
     }
+  },
+  mounted () {
+    axios.get(this.serveUrl('test')).then(() => {
+      this.serveStatus = '已连接'
+      console.log(this.serveStatus)
+    }).catch(() => {
+      this.serveStatus = '未连接'
+      console.log(this.serveStatus)
+    })
   },
 
   methods: {
@@ -231,6 +242,12 @@ export default {
             })
           }
         })
+        .catch(() => {
+          this.dialogVisible = false
+          this.$message.error({
+            message: '图片上传失败，服务端未连接'
+          })
+        })
       console.log(this.drawUrl)
     },
     getModels () {
@@ -253,6 +270,12 @@ export default {
           }
           this.hasGotModels = true
         })
+        .catch(() => {
+          this.dialogVisible = false
+          this.$message.error({
+            message: '模型列表载入失败，服务端未连接'
+          })
+        })
     },
     changeModels (type) {
       let param = {'type': type, 'name': type === 'yolo' ? this.yoloModel : this.lprModel}
@@ -267,6 +290,12 @@ export default {
             type: 'success'
           })
         })
+        .catch(() => {
+          this.dialogVisible = false
+          this.$message.error({
+            message: '模型更换失败，服务端未连接'
+          })
+        })
     },
     getDefaultModel () {
       axios
@@ -278,6 +307,12 @@ export default {
             title: '成功',
             message: '模型载入成功',
             type: 'success'
+          })
+        })
+        .catch(() => {
+          this.dialogVisible = false
+          this.$message.error({
+            message: '模型载入失败，服务端未连接'
           })
         })
     }
