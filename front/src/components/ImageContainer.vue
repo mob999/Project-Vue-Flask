@@ -9,7 +9,7 @@
         </el-dialog>
         <el-dialog title="图像预览" :visible.sync="oriDialogVisible" width="1000px" height="400px" style="z-index:0;">
               <el-image
-              :src="drawUrl"
+              :src="originUrl"
               style="width: 70%; height: 70%"
               fit="scale-down"
               ></el-image>
